@@ -148,22 +148,6 @@ def uops_to_cstyle(lang:CStyleLanguage, function_name:str, uops:List[UOp]) -> st
         elif args[0] == "HIP":
           assert dtype == dtypes.float.vec(8), "output dtype of HIP TC is _float8"
           kk(f"{lang.generic_var_prefix if lang.generic_var_prefix else dtype.name} {ssa(u, 'wmma')} = __builtin_amdgcn_wmma_f32_16x16x16_f16_w32({r[vin[0]]}, {r[vin[1]]}, {r[vin[2]]});")  # noqa: E501
-        elif args[0] == "CUDA":
-          output = ssa(u, "wmma")
-          kk("float wmma0[8];")
-          kk("{")
-          kk("nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, 16, 16, 16, half, nvcuda::wmma::row_major> a_frag;")
-          kk("nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, 16, 16, 16, half, nvcuda::wmma::row_major> b_frag;")
-          kk("nvcuda::wmma::fragment<nvcuda::wmma::accumulator, 16, 16, 16, float> c_frag;")
-          kk("nvcuda::wmma::fill_fragment(c_frag, 0.0f);")
-          kk("__shared__ float c[16*16];")
-          kk("nvcuda::wmma::load_matrix_sync(a_frag, data1, 16);")
-          kk("nvcuda::wmma::load_matrix_sync(b_frag, data2, 16);")
-          kk("nvcuda::wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);")
-          kk("nvcuda::wmma::store_matrix_sync(c, c_frag, 16, wmma::mem_row_major);")
-          for i in range(8):
-            kk(f"{output}[{i}] = c[lidx1+(lidx0*16)+{i*32}];")
-          kk("}")
         else:
           raise NotImplementedError(f"WMMA not implemented for {args}")
       elif uop == UOps.ALU:
