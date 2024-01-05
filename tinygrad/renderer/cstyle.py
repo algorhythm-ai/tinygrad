@@ -148,6 +148,8 @@ def uops_to_cstyle(lang:CStyleLanguage, function_name:str, uops:List[UOp]) -> st
         elif args[0] == "HIP":
           assert dtype == dtypes.float.vec(8), "output dtype of HIP TC is _float8"
           kk(f"{lang.generic_var_prefix if lang.generic_var_prefix else dtype.name} {ssa(u, 'wmma')} = __builtin_amdgcn_wmma_f32_16x16x16_f16_w32({r[vin[0]]}, {r[vin[1]]}, {r[vin[2]]});")  # noqa: E501
+        elif args[0] == "CUDA":
+          kk("")
         else:
           raise NotImplementedError(f"WMMA not implemented for {args}")
       elif uop == UOps.ALU:
