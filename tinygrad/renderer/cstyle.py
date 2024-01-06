@@ -258,7 +258,7 @@ code_for_op_half = {
 }
 
 class CUDALanguage(CStyleLanguage):
-  tensor_core_prefix= "#include <mma.h>\n\n"
+  tensor_core_prefix= "#include <mma.h>\nusing namespace nvcuda;\n\n"
   kernel_prefix = f"{tensor_core_prefix}#define INFINITY (__int_as_float(0x7f800000))\n#define NAN (__int_as_float(0x7fffffff))\nextern \"C\" __global__ "
   smem_prefix = "__shared__ "
   smem_prefix_for_cast = False
